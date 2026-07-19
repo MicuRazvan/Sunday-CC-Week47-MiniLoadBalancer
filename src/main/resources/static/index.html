@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Load Balancer Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: sans-serif; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Multi-Database Dynamic Load Balancer</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center p-4 bg-primary text-white">
+                <h5>Active Users</h5>
+                <p class="display-4 font-weight-bold" id="activeUsers">0</p>
+                <small>Generating 1 request/sec each</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-4">
+                <h5>Database 1</h5>
+                <p class="display-4 text-secondary" id="db1Count">0</p>
+                <small class="text-muted">Table size</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-4">
+                <h5>Database 2</h5>
+                <p class="display-4 text-secondary" id="db2Count">0</p>
+                <small class="text-muted">Table size</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center p-4">
+                <h5>Database 3</h5>
+                <p class="display-4 text-secondary" id="db3Count">0</p>
+                <small class="text-muted">Table size</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button class="btn btn-dark btn-lg px-5 py-3" onclick="createUser()">Create Simulated User</button>
+    </div>
+</div>
+
+<script>
+    async function fetchStatus() {
+        try {
+            const response = await fetch('/api/status');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('activeUsers').innerText = data.activeUsers;
+                document.getElementById('db1Count').innerText = data.db1;
+                document.getElementById('db2Count').innerText = data.db2;
+                document.getElementById('db3Count').innerText = data.db3;
+            }
+        } catch (error) {
+            console.error("Failed to fetch backend metrics:", error);
+        }
+    }
+
+    async function createUser() {
+        try {
+            await fetch('/api/users', { method: 'POST' });
+            fetchStatus();
+        } catch (error) {
+            console.error("Failed to spin up simulated user:", error);
+        }
+    }
+
+    // Live update interval
+    setInterval(fetchStatus, 500);
+    fetchStatus();
+</script>
+</body>
+</html>
